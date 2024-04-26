@@ -46,7 +46,10 @@
         android:layout_width="409dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="1dp"
-        android:layout_marginTop="16dp"
+        android:maxWidth="70dp"
+        android:max="3"
+        android:background="#789c8f"
+        android:progressTint="#ffffff"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -55,9 +58,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="100dp"
-        android:text='Say "STOP" to stop the wheel'
+        android:layout_marginTop="80dp"
         android:gravity="center"
+        android:text='Say "STOP" to stop the wheel'
         android:textSize="28sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
