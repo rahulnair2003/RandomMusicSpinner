@@ -1,18 +1,26 @@
 package com.example.groupfinalproject
 
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import org.w3c.dom.Text
 import java.util.Random
 
-class SpinnerActivity : AppCompatActivity() {
+
+
+class SpinnerActivity : AppCompatActivity(), RecognitionListener {
 
     private lateinit var spinButton: Button
     private lateinit var wheelImg: ImageView
@@ -37,8 +45,8 @@ class SpinnerActivity : AppCompatActivity() {
         revealTv = findViewById(R.id.revealTextView)
         revealTv.text = ""
         progressBar = findViewById(R.id.progressBar)
-        //speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
-        //speechRecognizer.setRecognitionListener(this)
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        speechRecognizer.setRecognitionListener(this)
 
         val random = Random()
 
@@ -46,6 +54,16 @@ class SpinnerActivity : AppCompatActivity() {
             spinButton.isEnabled = false
             count++
             progressBar.progress = count
+            /*
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+                // Permission is not granted, request the permission
+                ActivityCompat.requestPermissions(this,
+                    arrayOf(Manifest.permission.RECORD_AUDIO),
+                    RECORD_AUDIO_PERMISSION_CODE)
+            }*/
+            speechRecognizer.startListening(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH))
+
 
             var spin = (random.nextInt(6) + 1) * 60
 
@@ -60,24 +78,29 @@ class SpinnerActivity : AppCompatActivity() {
                     if (count == 1) {
                         randomGenre = genres[random.nextInt(genres.size)]
                         revealTv.text = "Genre: " + randomGenre
+                        speechRecognizer.stopListening()
                     }
                     else if (count == 2) {
                         randomYear = years[random.nextInt(years.size)]
                         revealTv.text = "Year: " + randomYear
+                        speechRecognizer.stopListening()
                     }
 
                     if (count >= 3) {
                         spinButton.isEnabled = false
-                        //make array of top artists here
+                        //make array of top artists here @ Rahul
                         //randomArtist = artists[random.nextInt(artists.size)]
                         //set artist here
                         //go to next view with song reveal here
+                        speechRecognizer.stopListening()
+                        val intent = Intent(this@SpinnerActivity, SongActivity::class.java)
+                        startActivity(intent)
                     }
                 }
             }.start()
         }
     }
-/*
+
     override fun onDestroy() {
         super.onDestroy()
         speechRecognizer.destroy()
@@ -103,11 +126,12 @@ class SpinnerActivity : AppCompatActivity() {
     }
 
     override fun onError(p0: Int) {
-        TODO("Not yet implemented")
+        Log.w("error: ", p0.toString())
     }
 
-    override fun onResults(p0: Bundle?) {
+    override fun onResults(results: Bundle?) {
         val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+        Log.w("matches: ", matches.toString())
         matches?.let {
             for (result in matches) {
                 if (result.equals("STOP", ignoreCase = true)) {
@@ -125,5 +149,5 @@ class SpinnerActivity : AppCompatActivity() {
 
     override fun onEvent(p0: Int, p1: Bundle?) {
         TODO("Not yet implemented")
-    }*/
+    }
 }

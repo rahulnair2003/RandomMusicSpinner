@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#d5f2e8">
+    android:background="#b6f2f0">
 
     <Button
         android:id="@+id/spinButton"
@@ -14,7 +14,7 @@
         android:layout_marginBottom="92dp"
         android:width="175dp"
         android:height="80dp"
-        android:backgroundTint="#789c8f"
+        android:backgroundTint="#499c99"
         android:text="SPIN"
         android:textSize="40sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -48,7 +48,7 @@
         android:layout_marginStart="1dp"
         android:maxWidth="70dp"
         android:max="3"
-        android:background="#789c8f"
+        android:background="#499c99"
         android:progressTint="#ffffff"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

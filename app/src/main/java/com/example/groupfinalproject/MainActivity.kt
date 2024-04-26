@@ -13,7 +13,7 @@ class MainActivity : AppCompatActivity() {
         val startButton = findViewById<Button>(R.id.startbutton)
 
         startButton.setOnClickListener {
-            //val inputText = numEntered.text.toString() //
+            //val inputText = numEntered.text.toString() //@RIYA
             //if (inputText.isNotBlank()) { //i just did this for testing purposes so change if needed! -sri
             val intent = Intent(this, SpinnerActivity::class.java)
             startActivity(intent)
