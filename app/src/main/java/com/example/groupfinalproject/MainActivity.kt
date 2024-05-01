@@ -3,6 +3,7 @@ package com.example.groupfinalproject
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -10,6 +11,9 @@ import android.widget.Toast
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     lateinit var adView: AdView
@@ -17,9 +21,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Spotify API Client Testing
-        val apiClient = SpotifyApiClient()
-        apiClient.test()
+        // Spotify API Client
+        CoroutineScope(Dispatchers.Main).launch {
+            // Call the suspending function within the coroutine
+            try {
+                token = model.generateToken()
+            } catch (e: Exception) {
+                // Handle exceptions here
+                println("Exception occurred: ${e.message}")
+            }
+        }
 
         // add advertising
         adView = AdView(this)
@@ -64,5 +75,18 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         adView.resume()
     }
+    suspend fun generateGenres() {
+        try {
+            val topGenres = model.getTopGenres(Companion.token)
+            Log.d("Test", "Top Genres: $topGenres")
+        } catch (e: Exception) {
+            Log.e("Test", "Error: ${e.message}", e)
+        }
+    }
 
+
+    companion object {
+        lateinit var token : String
+        val model = SpotifyApiClient()
+    }
 }

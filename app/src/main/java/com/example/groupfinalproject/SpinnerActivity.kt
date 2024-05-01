@@ -15,6 +15,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.w3c.dom.Text
 import java.util.Random
 
@@ -27,18 +30,21 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
     private lateinit var timer: CountDownTimer
     private lateinit var revealTv: TextView
     private lateinit var progressBar: ProgressBar
+    private lateinit var yearToSongArtistsMap :  Map<Int, List<Pair<String, String>>>
     private var randomGenre: String = ""
     private var randomYear: String = ""
     private var randomArtist: String = ""
     private lateinit var speechRecognizer: SpeechRecognizer
+    private lateinit var songs: Set<String>
+    private lateinit var artists: Set<String>
+    private lateinit var years: Array<String>
+    val model = MainActivity.model
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_spinner)
 
         var count: Int = 0
-
         var genres = arrayOf("rap", "pop", "country", "r&b", "classical", "rock")
-        var years = arrayOf("2010", "2012", "2014", "2016", "2018", "2020")
 
         spinButton = findViewById(R.id.spinButton)
         wheelImg = findViewById(R.id.wheelImg)
@@ -49,6 +55,8 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
         speechRecognizer.setRecognitionListener(this)
 
         val random = Random()
+        var spin = (random.nextInt(6) + 1) * 60
+
 
         spinButton.setOnClickListener {
             spinButton.isEnabled = false
@@ -65,39 +73,56 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
             speechRecognizer.startListening(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH))
 
 
-            var spin = (random.nextInt(6) + 1) * 60
+            CoroutineScope(Dispatchers.Main).launch {
+            // Call the suspending function within the coroutine
+            try {
+                generateArtists()
+                years = model.getYears(yearToSongArtistsMap)
 
-            timer = object : CountDownTimer(spin * 60L, 1) {
-                override fun onTick(l: Long) {
-                    var rotation = wheelImg.rotation + 10
-                    wheelImg.rotation = rotation
-                }
-
-                override fun onFinish() {
-                    spinButton.isEnabled = true
-                    if (count == 1) {
-                        randomGenre = genres[random.nextInt(genres.size)]
-                        revealTv.text = "Genre: " + randomGenre
-                        speechRecognizer.stopListening()
-                    }
-                    else if (count == 2) {
-                        randomYear = years[random.nextInt(years.size)]
-                        revealTv.text = "Year: " + randomYear
-                        speechRecognizer.stopListening()
+                timer = object : CountDownTimer(spin * 60L, 1) {
+                    override fun onTick(l: Long) {
+                        var rotation = wheelImg.rotation + 10
+                        wheelImg.rotation = rotation
                     }
 
-                    if (count >= 3) {
-                        spinButton.isEnabled = false
-                        //make array of top artists here @ Rahul
-                        //randomArtist = artists[random.nextInt(artists.size)]
-                        //set artist here
-                        //go to next view with song reveal here
-                        speechRecognizer.stopListening()
-                        val intent = Intent(this@SpinnerActivity, SongActivity::class.java)
-                        startActivity(intent)
+                    override fun onFinish() {
+                        spinButton.isEnabled = true
+                        if (count == 1) {
+                            randomGenre = genres[random.nextInt(genres.size)]
+                            revealTv.text = "Genre:  $randomGenre"
+                            speechRecognizer.stopListening()
+                        }
+                        else if (count == 2) {
+                            randomYear = years[random.nextInt(years.size)]
+                            revealTv.text = "Year: $randomYear"
+                            speechRecognizer.stopListening()
+                        }
+
+                        if (count >= 3) {
+                            spinButton.isEnabled = false
+                            //make array of top artists here @ Rahul
+                            //randomArtist = artists[random.nextInt(artists.size)]
+                            //set artist here
+                            //go to next view with song reveal here
+                            speechRecognizer.stopListening()
+                            val intent = Intent(this@SpinnerActivity, SongActivity::class.java)
+                            startActivity(intent)
+                        }
                     }
-                }
-            }.start()
+                }.start()
+
+
+
+                songs = model.getSongs(yearToSongArtistsMap, randomYear.toInt())
+                artists = model.getArtists(yearToSongArtistsMap, randomYear.toInt())
+                songArtistPair = model.getRandomSongArtistPair(yearToSongArtistsMap, randomYear.toInt())
+                Log.d("Artists", "$artists")
+
+            } catch (e: Exception) {
+                // Handle exceptions here
+                Log.w("Exception occurred:", "${e.message}")
+            }
+        }
         }
     }
 
@@ -149,5 +174,19 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
 
     override fun onEvent(p0: Int, p1: Bundle?) {
         TODO("Not yet implemented")
+    }
+
+    suspend fun generateArtists() {
+        try {
+            val popCategoryPlaylistId = "4K99Kk1PLl10SHd3XwI8QG"
+            yearToSongArtistsMap = model.getPlaylistItems(MainActivity.token, popCategoryPlaylistId)
+            Log.d("Test", "Top Artists in Pop Category: $yearToSongArtistsMap")
+        } catch (e: Exception) {
+            Log.e("Test", "Error: ${e.message}", e)
+        }
+    }
+
+    companion object {
+        var songArtistPair : Pair<String, String>? = null
     }
 }
