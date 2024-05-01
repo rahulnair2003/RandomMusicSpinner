@@ -1,9 +1,11 @@
 package com.example.groupfinalproject
 
 import android.os.Bundle
-import android.view.View
+import android.view.View.OnTouchListener
+import android.widget.RatingBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+
 
 class SongActivity : AppCompatActivity() {
     lateinit var songText : TextView
@@ -14,5 +16,18 @@ class SongActivity : AppCompatActivity() {
         songText = findViewById<TextView>(R.id.songTextView)
         // Assuming songText is a TextView defined in your activity
         songText.text = SpinnerActivity.songArtistPair!!.first
+
+        val ratingBar = findViewById<RatingBar>(R.id.ratingbar)
+        val listener = ratingListener()
+        ratingBar.setOnRatingBarChangeListener(listener)
+
     }
+    class ratingListener: RatingBar.OnRatingBarChangeListener {
+        override fun onRatingChanged(ratingBar: RatingBar, rating: Float, fromUser: Boolean) {
+            if (fromUser) {
+                // RATING STUFF IN FIREBASE (riya)
+            }
+        }
+    }
+
 }
