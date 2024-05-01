@@ -17,6 +17,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Spotify API Client Testing
+        val apiClient = SpotifyApiClient()
+        apiClient.test()
+
         // add advertising
         adView = AdView(this)
         var adSize: AdSize = AdSize(AdSize.FULL_WIDTH, AdSize.AUTO_HEIGHT)
