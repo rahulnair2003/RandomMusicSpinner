@@ -38,6 +38,7 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
     private lateinit var songs: Set<String>
     private lateinit var artists: Set<String>
     private lateinit var years: Array<String>
+    var playlistId : String = "64U4ZGXiJ8A5fOaq8HUtiH"
     val model = MainActivity.model
     val firebase = MainActivity.firebase
     val reference = MainActivity.reference
@@ -47,7 +48,17 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
         setContentView(R.layout.activity_spinner)
 
         var count: Int = 0
-        var genres = arrayOf("rap", "pop", "country", "r&b", "classical", "rock")
+        var genres = arrayOf("rap", "pop", "country", "r&b", "indie", "rock")
+
+        val playlistIds = mapOf(
+            "rap" to "64U4ZGXiJ8A5fOaq8HUtiH",
+            "pop" to "1uzcSMiEcOYrxchk6dcG25",
+            "country" to "1mPeU0pzKhQJ3XkOa0jKWf",
+            "r&b" to "7xwWSO2l5YMnsgjTHrZ4kC",
+            "indie" to "4VAhhfKT3sGh3hrEtZ5ssM",
+            "rock" to "4nVjt4Hn4Z8Jjxb4SVbjOC"
+        )
+
 
         spinButton = findViewById(R.id.spinButton)
         wheelImg = findViewById(R.id.wheelImg)
@@ -93,6 +104,8 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                         if (count == 1) {
                             randomGenre = genres[random.nextInt(genres.size)]
                             revealTv.text = "Genre:  $randomGenre"
+                            playlistId = playlistIds[randomGenre]!!
+                            Log.w("TESTING", playlistId)
                             speechRecognizer.stopListening()
                         }
                         else if (count == 2) {
@@ -184,8 +197,7 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
 
     suspend fun generateArtists() {
         try {
-            val popCategoryPlaylistId = "4K99Kk1PLl10SHd3XwI8QG"
-            yearToSongArtistsMap = model.getPlaylistItems(MainActivity.token, popCategoryPlaylistId)
+            yearToSongArtistsMap = model.getPlaylistItems(MainActivity.token, playlistId)
             Log.d("Test", "Top Artists in Pop Category: $yearToSongArtistsMap")
         } catch (e: Exception) {
             Log.e("Test", "Error: ${e.message}", e)
