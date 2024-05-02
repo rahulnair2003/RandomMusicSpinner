@@ -11,6 +11,8 @@ import android.widget.Toast
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+import com.google.firebase.FirebaseApp
+import com.google.firebase.database.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,7 +22,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        FirebaseApp.initializeApp(this)
         // Spotify API Client
         CoroutineScope(Dispatchers.Main).launch {
             // Call the suspending function within the coroutine
@@ -47,9 +49,11 @@ class MainActivity : AppCompatActivity() {
         val startButton = findViewById<Button>(R.id.startbutton)
         val usernamePrompt = findViewById<EditText>(R.id.username)
         startButton.setOnClickListener {
-            val username = usernamePrompt.text.toString() //@RIYA
+            username = usernamePrompt.text.toString() //@RIYA
             if (username != "" && username != "Type your username here") {
                 // firebase stuff
+                val valListener = ValListener()
+                reference.child(username).addListenerForSingleValueEvent(valListener)
                 val intent = Intent(this, SpinnerActivity::class.java)
                 startActivity(intent)
             }
@@ -84,9 +88,35 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    class ValListener: ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            if (dataSnapshot.exists()) {
+                Log.w("firebase", "found previous data")
+                prevGenre = dataSnapshot.child("genre").value.toString()
+                prevYear = dataSnapshot.child("year").value.toString()
+                prevArtist = dataSnapshot.child("artist").value.toString()
+                Log.w("prevdata", prevGenre)
+                Log.w("prevdata", prevYear)
+                Log.w("prevdata", prevArtist)
+            } else {
+                Log.w("firebase", "new user")
+                reference.child(username).setValue(true)
+            }
+        }
+        override fun onCancelled(error : DatabaseError ) {
+            Log.w( "MainActivity", "error: " + error.message )
+        }
+    }
 
     companion object {
         lateinit var token : String
         val model = SpotifyApiClient()
+        val firebase = FirebaseDatabase.getInstance()
+        val reference = firebase.getReference("users")
+        lateinit var username: String
+        var prevGenre: String = ""
+        var prevYear: String = ""
+        var prevArtist: String = ""
+
     }
 }

@@ -39,6 +39,9 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
     private lateinit var artists: Set<String>
     private lateinit var years: Array<String>
     val model = MainActivity.model
+    val firebase = MainActivity.firebase
+    val reference = MainActivity.reference
+    val username = MainActivity.username
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_spinner)
@@ -104,6 +107,9 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                             //randomArtist = artists[random.nextInt(artists.size)]
                             //set artist here
                             //go to next view with song reveal here
+                            val spinData = mapOf("genre" to randomGenre, "year" to randomYear, "artist" to randomArtist)
+                            reference.child(username).updateChildren(spinData)
+
                             speechRecognizer.stopListening()
                             val intent = Intent(this@SpinnerActivity, SongActivity::class.java)
                             startActivity(intent)

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "436894252842",
+    "project_id": "randommusicspinner",
+    "storage_bucket": "randommusicspinner.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:436894252842:android:b02ba40006a77374756853",
+        "android_client_info": {
+          "package_name": "com.example.groupfinalproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdJu43Q8jl4c0nguyhvw4mEq_zaxdPuqs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
