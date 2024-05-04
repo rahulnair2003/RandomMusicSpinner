@@ -1,5 +1,6 @@
 package com.example.groupfinalproject
 
+import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -12,6 +13,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -35,7 +37,6 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
     private var randomGenre: String = ""
     private var randomYear: String = ""
     private var randomArtist: String = ""
-    private lateinit var speechRecognizer: SpeechRecognizer
     private lateinit var songs: Set<String>
     private lateinit var artists: Set<String>
     private lateinit var years: Array<String>
@@ -47,6 +48,9 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
     var prevGenre = MainActivity.prevGenre
     var prevYear = MainActivity.prevYear
     var prevArtist = MainActivity.prevArtist
+    private lateinit var speechRecognizer: SpeechRecognizer
+    private lateinit var recognizerIntent: Intent
+    private val permission = 100
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_spinner)
@@ -71,148 +75,175 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
         prevTv = findViewById(R.id.prevDataNotif)
         prevTv.text = ""
         progressBar = findViewById(R.id.progressBar)
+
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
         speechRecognizer.setRecognitionListener(this)
+
+        recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "en-US")
+
+        ActivityCompat.requestPermissions(this@SpinnerActivity,
+            arrayOf(Manifest.permission.RECORD_AUDIO),
+            permission)
 
         val random = Random()
         var spin = (random.nextInt(6) + 1) * 60
 
 
         spinButton.setOnClickListener {
+            speechRecognizer.startListening(recognizerIntent)
+            Log.w("SPEECHRECOGNIZER", "start listening")
+
             spinButton.isEnabled = false
             count++
             progressBar.progress = count
-            /*
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-                != PackageManager.PERMISSION_GRANTED) {
-                // Permission is not granted, request the permission
-                ActivityCompat.requestPermissions(this,
-                    arrayOf(Manifest.permission.RECORD_AUDIO),
-                    RECORD_AUDIO_PERMISSION_CODE)
-            }*/
-            speechRecognizer.startListening(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH))
 
 
             CoroutineScope(Dispatchers.Main).launch {
-            // Call the suspending function within the coroutine
-            try {
-                generateArtists()
-                years = model.getYears(yearToSongArtistsMap)
-
-                timer = object : CountDownTimer(spin * 60L, 1) {
-                    override fun onTick(l: Long) {
-                        var rotation = wheelImg.rotation + 10
-                        wheelImg.rotation = rotation
-                    }
-
-                    override fun onFinish() {
-                        spinButton.isEnabled = true
-                        if (count == 1) {
-                            randomGenre = genres[random.nextInt(genres.size)]
-                            revealTv.text = "Genre:  $randomGenre"
-                            Log.w("prevgenre", prevGenre)
-                            if (prevGenre != "")
-                                prevTv.text = "Last time, you spun $prevGenre"
-                            else
-                                prevTv.text = ""
-                            playlistId = playlistIds[randomGenre]!!
-                            Log.w("TESTING", playlistId)
-                            speechRecognizer.stopListening()
-                        }
-                        else if (count == 2) {
-                            randomYear = years[random.nextInt(years.size)]
-                            revealTv.text = "Year: $randomYear"
-                            Log.w("prevyear", prevYear)
-                            if (prevYear != "")
-                                prevTv.text = "Last time, you spun $prevYear"
-                            else
-                                prevTv.text = ""
-                            speechRecognizer.stopListening()
+                // Call the suspending function within the coroutine
+                try {
+                    generateArtists()
+                    years = model.getYears(yearToSongArtistsMap)
+                    timer = object : CountDownTimer(spin * 60L, 1) {
+                        override fun onTick(l: Long) {
+                            var rotation = wheelImg.rotation + 10
+                            wheelImg.rotation = rotation
                         }
 
-                        if (count >= 3) {
-                            spinButton.isEnabled = false
-                            //make array of top artists here @ Rahul
-                            //randomArtist = artists[random.nextInt(artists.size)]
-                            //set artist here
-                            //go to next view with song reveal here
-                            val spinData = mapOf("genre" to randomGenre, "year" to randomYear, "artist" to randomArtist)
-                            reference.child(username).updateChildren(spinData)
-                            //prevTv.text = "Last time, you spun $prevArtist"
-                            speechRecognizer.stopListening()
-                            SongActivity.spinnerfinish = true
-                            val intent = Intent(this@SpinnerActivity, SongActivity::class.java)
-                            startActivity(intent)
-                            if (SongActivity.spinnerfinish == true)
-                                finish()
+                        override fun onFinish() {
+                            spinButton.isEnabled = true
+                            if (count == 1) {
+                                randomGenre = genres[random.nextInt(genres.size)]
+                                revealTv.text = "Genre:  $randomGenre"
+                                Log.w("prevgenre", prevGenre)
+                                if (prevGenre != "")
+                                    prevTv.text = "Last time, you spun $prevGenre"
+                                else
+                                    prevTv.text = ""
+                                playlistId = playlistIds[randomGenre]!!
+                                Log.w("TESTING", playlistId)
+                                speechRecognizer.stopListening()
+                            }
+                            else if (count == 2) {
+                                randomYear = years[random.nextInt(years.size)]
+                                revealTv.text = "Year: $randomYear"
+                                Log.w("prevyear", prevYear)
+                                if (prevYear != "")
+                                    prevTv.text = "Last time, you spun $prevYear"
+                                else
+                                    prevTv.text = ""
+                                speechRecognizer.stopListening()
+                            }
+
+                            if (count >= 3) {
+                                spinButton.isEnabled = false
+                                //make array of top artists here @ Rahul
+                                //randomArtist = artists[random.nextInt(artists.size)]
+                                //set artist here
+                                //go to next view with song reveal here
+                                val spinData = mapOf("genre" to randomGenre, "year" to randomYear, "artist" to randomArtist)
+                                reference.child(username).updateChildren(spinData)
+                                //prevTv.text = "Last time, you spun $prevArtist"
+                                speechRecognizer.stopListening()
+                                SongActivity.spinnerfinish = true
+                                val intent = Intent(this@SpinnerActivity, SongActivity::class.java)
+                                startActivity(intent)
+                                if (SongActivity.spinnerfinish == true)
+                                    finish()
+                            }
                         }
-                    }
-                }.start()
+                    }.start()
 
 
 
-                songs = model.getSongs(yearToSongArtistsMap, randomYear.toInt())
-                artists = model.getArtists(yearToSongArtistsMap, randomYear.toInt())
-                songArtistPair = model.getRandomSongArtistPair(yearToSongArtistsMap, randomYear.toInt())
-                Log.d("Artists", "$artists")
+                    songs = model.getSongs(yearToSongArtistsMap, randomYear.toInt())
+                    artists = model.getArtists(yearToSongArtistsMap, randomYear.toInt())
+                    songArtistPair = model.getRandomSongArtistPair(yearToSongArtistsMap, randomYear.toInt())
+                    Log.d("Artists", "$artists")
 
-            } catch (e: Exception) {
-                // Handle exceptions here
-                Log.w("Exception occurred:", "${e.message}")
-            }
-        }
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        speechRecognizer.destroy()
-    }
-    override fun onReadyForSpeech(p0: Bundle?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onBeginningOfSpeech() {
-        TODO("Not yet implemented")
-    }
-
-    override fun onRmsChanged(p0: Float) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onBufferReceived(p0: ByteArray?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onEndOfSpeech() {
-        TODO("Not yet implemented")
-    }
-
-    override fun onError(p0: Int) {
-        Log.w("error: ", p0.toString())
-    }
-
-    override fun onResults(results: Bundle?) {
-        val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-        Log.w("matches: ", matches.toString())
-        matches?.let {
-            for (result in matches) {
-                if (result.equals("STOP", ignoreCase = true)) {
-                    // Stop spinning animation when "STOP" is detected
-                    timer.cancel()
-                    spinButton.isEnabled = true
+                } catch (e: Exception) {
+                    // Handle exceptions here
+                    Log.w("Exception occurred:", "${e.message}")
                 }
             }
         }
     }
 
-    override fun onPartialResults(p0: Bundle?) {
-        TODO("Not yet implemented")
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>,
+                                            grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        Log.w("SPEECHRECOGNIZER", "in on request permissions result")
+        when (requestCode) {
+            permission -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager
+                    .PERMISSION_GRANTED) {
+                speechRecognizer.startListening(recognizerIntent)
+            } else {
+                Toast.makeText(this@SpinnerActivity, "Permission Denied",
+                    Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
-    override fun onEvent(p0: Int, p1: Bundle?) {
-        TODO("Not yet implemented")
+    override fun onStop() {
+        super.onStop()
+        Log.w("SPEECHRECOGNIZER", "stop")
     }
+
+    override fun onReadyForSpeech(params: Bundle?) {}
+
+    override fun onBeginningOfSpeech() {}
+
+    override fun onRmsChanged(p0: Float) {}
+
+    override fun onBufferReceived(p0: ByteArray?) {}
+
+    override fun onEndOfSpeech() {}
+
+    override fun onError(error: Int) {
+        val errorMessage: String = getErrorText(error)
+        Log.w("SPEECHRECOGNIZER ERROR", "FAILED $errorMessage")
+    }
+    private fun getErrorText(error: Int): String {
+        var message = ""
+        message = when (error) {
+            SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
+            SpeechRecognizer.ERROR_CLIENT -> "Client side error"
+            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Insufficient permissions"
+            SpeechRecognizer.ERROR_NETWORK -> "Network error"
+            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Network timeout"
+            SpeechRecognizer.ERROR_NO_MATCH -> "No match"
+            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "RecognitionService busy"
+            SpeechRecognizer.ERROR_SERVER -> "error from server"
+            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech input"
+            else -> "Didn't understand, please try again."
+        }
+        return message
+    }
+
+    override fun onResults(results: Bundle?) {
+        Log.w("SPEECHRECOGNIZER", "onResults")
+        val matches = results!!.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+
+        var stopDetected = false
+        for (result in matches!!) {
+            if (result.equals("STOP", ignoreCase = true)) {
+                Log.w("SPEECHRECOGNIZER", "MATCHED!!!")
+                stopDetected = true
+                break
+            }
+        }
+        if (stopDetected) {
+            Log.w("SPEECHRECOGNIZER", "stop detected")
+            timer.cancel()
+            spinButton.isEnabled = true
+            speechRecognizer.stopListening()
+        }
+    }
+
+    override fun onPartialResults(p0: Bundle?) {}
+
+    override fun onEvent(p0: Int, p1: Bundle?) {}
+
 
     suspend fun generateArtists() {
         try {
