@@ -29,6 +29,7 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
     private lateinit var wheelImg: ImageView
     private lateinit var timer: CountDownTimer
     private lateinit var revealTv: TextView
+    private lateinit var prevTv: TextView
     private lateinit var progressBar: ProgressBar
     private lateinit var yearToSongArtistsMap :  Map<Int, List<Pair<String, String>>>
     private var randomGenre: String = ""
@@ -40,9 +41,12 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
     private lateinit var years: Array<String>
     var playlistId : String = "64U4ZGXiJ8A5fOaq8HUtiH"
     val model = MainActivity.model
-    val firebase = MainActivity.firebase
-    val reference = MainActivity.reference
-    val username = MainActivity.username
+    var firebase = MainActivity.firebase
+    var reference = MainActivity.reference
+    var username = MainActivity.username
+    var prevGenre = MainActivity.prevGenre
+    var prevYear = MainActivity.prevYear
+    var prevArtist = MainActivity.prevArtist
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_spinner)
@@ -64,6 +68,8 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
         wheelImg = findViewById(R.id.wheelImg)
         revealTv = findViewById(R.id.revealTextView)
         revealTv.text = ""
+        prevTv = findViewById(R.id.prevDataNotif)
+        prevTv.text = ""
         progressBar = findViewById(R.id.progressBar)
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
         speechRecognizer.setRecognitionListener(this)
@@ -104,6 +110,11 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                         if (count == 1) {
                             randomGenre = genres[random.nextInt(genres.size)]
                             revealTv.text = "Genre:  $randomGenre"
+                            Log.w("prevgenre", prevGenre)
+                            if (prevGenre != "")
+                                prevTv.text = "Last time, you spun $prevGenre"
+                            else
+                                prevTv.text = ""
                             playlistId = playlistIds[randomGenre]!!
                             Log.w("TESTING", playlistId)
                             speechRecognizer.stopListening()
@@ -111,6 +122,11 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                         else if (count == 2) {
                             randomYear = years[random.nextInt(years.size)]
                             revealTv.text = "Year: $randomYear"
+                            Log.w("prevyear", prevYear)
+                            if (prevYear != "")
+                                prevTv.text = "Last time, you spun $prevYear"
+                            else
+                                prevTv.text = ""
                             speechRecognizer.stopListening()
                         }
 
@@ -122,10 +138,13 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                             //go to next view with song reveal here
                             val spinData = mapOf("genre" to randomGenre, "year" to randomYear, "artist" to randomArtist)
                             reference.child(username).updateChildren(spinData)
-
+                            //prevTv.text = "Last time, you spun $prevArtist"
                             speechRecognizer.stopListening()
+                            SongActivity.spinnerfinish = true
                             val intent = Intent(this@SpinnerActivity, SongActivity::class.java)
                             startActivity(intent)
+                            if (SongActivity.spinnerfinish == true)
+                                finish()
                         }
                     }
                 }.start()
