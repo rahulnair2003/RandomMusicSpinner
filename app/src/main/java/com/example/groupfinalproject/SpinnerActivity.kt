@@ -74,7 +74,7 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
         speechRecognizer.setRecognitionListener(this)
 
         recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "US-en")
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "en-US")
 
         ActivityCompat.requestPermissions(this@SpinnerActivity,
             arrayOf(Manifest.permission.RECORD_AUDIO),
