@@ -104,7 +104,7 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                 try {
                     generateArtists()
                     years = model.getYears(yearToSongArtistsMap)
-                    timer = object : CountDownTimer(spin * 60L, 1) {
+                    timer = object : CountDownTimer(spin * 30L, 1) {
                         override fun onTick(l: Long) {
                             var rotation = wheelImg.rotation + 10
                             wheelImg.rotation = rotation
@@ -117,7 +117,7 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                                 revealTv.text = "Genre:  $randomGenre"
                                 Log.w("prevgenre", prevGenre)
                                 if (prevGenre != "")
-                                    prevTv.text = "Last time, you spun $prevGenre"
+                                    prevTv.text = "Last time, $username spun $prevGenre"
                                 else
                                     prevTv.text = ""
                                 playlistId = playlistIds[randomGenre]!!
@@ -129,7 +129,7 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                                 revealTv.text = "Year: $randomYear"
                                 Log.w("prevyear", prevYear)
                                 if (prevYear != "")
-                                    prevTv.text = "Last time, you spun $prevYear"
+                                    prevTv.text = "Last time, $username spun $prevYear"
                                 else
                                     prevTv.text = ""
                                 speechRecognizer.stopListening()

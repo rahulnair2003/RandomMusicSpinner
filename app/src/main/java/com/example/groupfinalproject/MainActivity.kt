@@ -22,6 +22,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        firebase = FirebaseDatabase.getInstance()
+        reference = firebase.getReference("users")
         FirebaseApp.initializeApp(this)
         // Spotify API Client
         CoroutineScope(Dispatchers.Main).launch {
@@ -101,6 +103,9 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Log.w("firebase", "new user")
                 reference.child(username).setValue(true)
+                prevGenre = ""
+                prevYear = ""
+                prevArtist = ""
             }
         }
         override fun onCancelled(error : DatabaseError ) {
@@ -111,8 +116,8 @@ class MainActivity : AppCompatActivity() {
     companion object {
         lateinit var token : String
         val model = SpotifyApiClient()
-        val firebase = FirebaseDatabase.getInstance()
-        val reference = firebase.getReference("users")
+        lateinit var firebase: FirebaseDatabase
+        lateinit var reference: DatabaseReference
         lateinit var username: String
         var prevGenre: String = ""
         var prevYear: String = ""
