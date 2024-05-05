@@ -1,10 +1,12 @@
 package com.example.groupfinalproject
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.View.OnTouchListener
 import android.widget.Button
+import android.widget.EditText
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +19,7 @@ class SongActivity : AppCompatActivity() {
     lateinit var ratingThanksTV : TextView
     lateinit var sharedPreferences: SharedPreferences
     lateinit var editor: SharedPreferences.Editor
+    lateinit var shareButton: Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_song)
@@ -36,6 +39,11 @@ class SongActivity : AppCompatActivity() {
                 prevSongNotif = "The last song you spun was $prevSong and you did not rate it."
             else
                 prevSongNotif = "The last song you spun was $prevSong and you rated it $rating stars."
+        }
+
+        shareButton = findViewById(R.id.shareButton)
+        shareButton.setOnClickListener {
+            sendEmail()
         }
 
         songText = findViewById<TextView>(R.id.songTextView)
@@ -67,6 +75,17 @@ class SongActivity : AppCompatActivity() {
                 ratingThanksTV.text = ratingNotif
             }
         }
+    }
+
+    fun sendEmail() {
+        val songTitle = SpinnerActivity.songArtistPair!!.first
+
+        val emailIntent = Intent(Intent.ACTION_SEND)
+        emailIntent.setType("text/plain")
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Check out this song!")
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Song Title: $songTitle")
+
+        startActivity(Intent.createChooser(emailIntent, "Send Email"))
     }
     companion object {
         var spinnerfinish = false
