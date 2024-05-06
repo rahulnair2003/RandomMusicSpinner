@@ -28,6 +28,14 @@ interface GetPlaylistFromCategory {
     ): Call<PlaylistItems>
 }
 
+interface GetTrack {
+    @GET("v1/tracks/{id}")
+    fun getTrack(
+        @Header("Authorization") auth: String,
+        @Path("id") trackId: String
+    ): Call<Track>
+}
+
 interface GetGenres {
     @GET("v1/browse/categories")
     fun getCategories(

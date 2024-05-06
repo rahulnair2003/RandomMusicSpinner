@@ -63,33 +63,33 @@ class SpotifyApiClient {
         }
     }
 
-    suspend fun getPlaylistItems(accessToken: String, playlistId: String): Map<Int, List<Pair<String, String>>> {
-        val yearToSongArtistsMap = mutableMapOf<Int, MutableList<Pair<String, String>>>()
+    suspend fun getPlaylistItems(accessToken: String, playlistId: String): Map<String, List<Triple<String, String, String>>> {
+        val decadeToSongArtistsMap = mutableMapOf<String, MutableList<Triple<String, String, String>>>()
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.spotify.com/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         val getPlaylistApi = retrofit.create(GetPlaylistFromCategory::class.java)
+        Log.d("Test", "$playlistId")
 
         return withContext(Dispatchers.IO) {
             try {
                 val response = getPlaylistApi.getTracks("Bearer $accessToken", playlistId).execute()
                 if (response.isSuccessful) {
                     response.body()?.items?.forEach { item ->
-                        //Log.d("Whooo", "$item.track")
-                        val releaseYear = item.track.album.release_date.substring(0, 4)?.toIntOrNull()
-                        //Log.d("Whooo", releaseYear.toString())
-                        item.track.artists.forEach { artist ->
-                            releaseYear?.let {
-                                val songArtistPair = Pair(item.track.name, artist.name)
-                                val songArtistsList = yearToSongArtistsMap.getOrPut(releaseYear) { mutableListOf() }
-                                songArtistsList.add(songArtistPair)
+                        val releaseYear = item.track.album.release_date?.substring(0, 4)?.toIntOrNull()
+                        releaseYear?.let { year ->
+                            val decade = getDecade(year)
+                            item.track.artists.forEach { artist ->
+                                val imageURL = item.track.album.images.firstOrNull()?.url ?: "https://static.vecteezy.com/system/resources/thumbnails/001/840/618/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg"
+                                val songArtistImageTriple = Triple(item.track.name, artist.name, imageURL)
+                                val songArtistsList = decadeToSongArtistsMap.getOrPut(decade) { mutableListOf() }
+                                songArtistsList.add(songArtistImageTriple)
                             }
                         }
                     }
-                    Log.d("whoooo", "$yearToSongArtistsMap")
-                    yearToSongArtistsMap
+                    decadeToSongArtistsMap
                 } else {
                     throw RuntimeException("Failed to get playlist items: ${response.code()}")
                 }
@@ -99,38 +99,36 @@ class SpotifyApiClient {
         }
     }
 
-    fun getSongs(map: Map<Int, List<Pair<String, String>>>, year: Int): Set<String> {
+
+    private fun getDecade(year: Int): String {
+        return when (year) {
+            in 1970..1979 -> "1970"
+            in 1980..1989 -> "1980"
+            in 1990..1999 -> "1990"
+            in 2000..2009 -> "2000"
+            in 2010..2019 -> "2010"
+            in 2020..2029 -> "2020"
+            else -> throw IllegalArgumentException("Invalid year: $year")
+        }
+    }
+
+
+    fun getSongs(map: Map<String, List<Triple<String, String, String>>>, year: String): Set<String> {
         return (map[year]?.map { it.first } ?: emptyList()).toSet()
     }
 
-    fun getArtists(map: Map<Int, List<Pair<String, String>>>, year: Int): Set<String> {
+    fun getArtists(map: Map<String, List<Triple<String, String, String>>>, year: String): Set<String> {
         return (map[year]?.map { it.second } ?: emptyList()).toSet()
     }
 
-    fun getYears(map: Map<Int, List<Pair<String, String>>>): Array<String> {
-        val yearSongCountMap = mutableMapOf<Int, Int>()
-        for ((year, songArtistsList) in map) {
-            yearSongCountMap[year] = songArtistsList.size
-        }
-        val sortedYears = yearSongCountMap.entries.sortedByDescending { it.value }
-        val topYears = sortedYears.take(6)
-
-        return topYears.map { it.key.toString() }.toTypedArray()
-    }
-
-    fun getRandomSongArtistPair(map: Map<Int, List<Pair<String, String>>>, year: Int): Pair<String, String>? {
-
+    fun getRandomSongArtistPair(map: Map<String, List<Triple<String, String, String>>>, year: String): Triple<String, String, String>? {
         val songArtistsList = map[year]
-        if (songArtistsList != null && songArtistsList.isNotEmpty()) {
+        if (!songArtistsList.isNullOrEmpty()) {
             val randomIndex = (0 until songArtistsList.size).random()
             return songArtistsList[randomIndex]
         }
-
         return null
     }
-
-
-
 
     suspend fun filterArtistsByYear(token: String, artists: List<String>, year: Int): List<String> {
         val filteredArtists = mutableSetOf<String>()

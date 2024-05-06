@@ -16,11 +16,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
 import java.util.Random
 
 
@@ -33,7 +31,7 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
     private lateinit var revealTv: TextView
     private lateinit var prevTv: TextView
     private lateinit var progressBar: ProgressBar
-    private lateinit var yearToSongArtistsMap :  Map<Int, List<Pair<String, String>>>
+    private lateinit var yearToSongArtistsMap :  Map<String, List<Triple<String, String, String>>>
     private var randomGenre: String = ""
     private var randomYear: String = ""
     private var randomArtist: String = ""
@@ -59,13 +57,14 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
         var genres = arrayOf("rap", "pop", "country", "r&b", "indie", "rock")
 
         val playlistIds = mapOf(
-            "rap" to "64U4ZGXiJ8A5fOaq8HUtiH",
-            "pop" to "1uzcSMiEcOYrxchk6dcG25",
-            "country" to "1mPeU0pzKhQJ3XkOa0jKWf",
-            "r&b" to "7xwWSO2l5YMnsgjTHrZ4kC",
-            "indie" to "4VAhhfKT3sGh3hrEtZ5ssM",
-            "rock" to "4nVjt4Hn4Z8Jjxb4SVbjOC"
+            "rap" to mapOf("1970" to "37i9dQZF1EIee1TiRnBd3C", "1980" to "37i9dQZF1DX2XmsXL2WBQd", "1990" to "37i9dQZF1DX186v583rmzp", "2000" to "37i9dQZF1DX1lHW2vbQwNN", "2010" to "37i9dQZF1DX97h7ftpNSYT", "2020" to "37i9dQZF1EIezQcATIWbSB"),
+            "pop" to mapOf("1970" to "37i9dQZF1EIg0r197lDGql", "1980" to "49PAThhKRCCTXeydvq9uAp", "1990" to "37i9dQZF1DWVcJK7WY4M52", "2000" to "5asIusKloOLOILpjhwjgPH", "2010" to "3FeewjLi5LMzIpV4h35QEz", "2020" to "7bfyBCaVhnd8OywuUVKlhN"),
+            "country" to mapOf("1970" to "37i9dQZF1DWYP5PUsVbso9", "1980" to "37i9dQZF1DX6RCydf9ytsj", "1990" to "37i9dQZF1DWVpjAJGB70vU", "2000" to "37i9dQZF1DXdxUH6sNtcDe", "2010" to "0wqUVPa19eClnNClEMQQoY", "2020" to "7vGNRrlvEtUX6hRdQvLq7U"),
+            "r&b" to mapOf("1970" to "37i9dQZF1EIdpeTOIJBUe0", "1980" to "7oSFWAqfNN4UON82z8yst0", "1990" to "37i9dQZF1DX6VDO8a6cQME", "2000" to "37i9dQZF1DWYmmr74INQlb", "2010" to "37i9dQZF1DWXbttAJcbphz", "2020" to "37i9dQZF1EIhKysdf5HuRS"),
+            "indie" to mapOf("1970" to "0IbhSEAnmAUYMOtqImw4JK", "1980" to "37i9dQZF1EIevGiMQyNtSW", "1990" to "37i9dQZF1EIdAFUuQXTjDp", "2000" to "4irf7OeR9mM7KVxNTYoiXx", "2010" to "2HgmyUctw7UAi6fLlIMZJH", "2020" to "37i9dQZF1EIgo0ld2W1RyS"),
+            "rock" to mapOf("1970" to "3za8xUPaO5ng9AC7rpbMNB", "1980" to "37i9dQZF1EIelF7Dvo3Edn", "1990" to "2HfFccisPxQfprhgIHM7XH", "2000" to "37i9dQZF1DX3oM43CtKnRV", "2010" to "37i9dQZF1DX99DRG9N39X3", "2020" to "37i9dQZF1EIfFB4LmpxPTW")
         )
+
 
 
         spinButton = findViewById(R.id.spinButton)
@@ -103,7 +102,7 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                 // Call the suspending function within the coroutine
                 try {
                     generateArtists()
-                    years = model.getYears(yearToSongArtistsMap)
+                    years = arrayOf("1970", "1980", "1990", "1970", "1980", "1990")
                     timer = object : CountDownTimer(spin * 30L, 1) {
                         override fun onTick(l: Long) {
                             var rotation = wheelImg.rotation + 10
@@ -120,7 +119,6 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                                     prevTv.text = "Last time, $username spun $prevGenre"
                                 else
                                     prevTv.text = ""
-                                playlistId = playlistIds[randomGenre]!!
                                 Log.w("TESTING", playlistId)
                                 speechRecognizer.stopListening()
                             }
@@ -132,6 +130,10 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                                     prevTv.text = "Last time, $username spun $prevYear"
                                 else
                                     prevTv.text = ""
+                                playlistId = playlistIds[randomGenre]!![randomYear]!!
+                                Log.w("PLAYLISTID", playlistId)
+                                Log.w("PLAYLISTID", "$playlistIds")
+                                Log.w("PLAYLISTID", "$randomYear $randomGenre")
                                 speechRecognizer.stopListening()
                             }
 
@@ -145,10 +147,10 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                                 reference.child(username).updateChildren(spinData)
                                 //prevTv.text = "Last time, you spun $prevArtist"
                                 speechRecognizer.stopListening()
-                                SongActivity.spinnerfinish = true
+                                SongActivity.spinnerFinish = true
                                 val intent = Intent(this@SpinnerActivity, SongActivity::class.java)
                                 startActivity(intent)
-                                if (SongActivity.spinnerfinish == true)
+                                if (SongActivity.spinnerFinish == true)
                                     finish()
                             }
                         }
@@ -156,9 +158,9 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
 
 
 
-                    songs = model.getSongs(yearToSongArtistsMap, randomYear.toInt())
-                    artists = model.getArtists(yearToSongArtistsMap, randomYear.toInt())
-                    songArtistPair = model.getRandomSongArtistPair(yearToSongArtistsMap, randomYear.toInt())
+                    songs = model.getSongs(yearToSongArtistsMap, randomYear)
+                    artists = model.getArtists(yearToSongArtistsMap, randomYear)
+                    songArtistTriple = model.getRandomSongArtistPair(yearToSongArtistsMap, randomYear)
                     Log.d("Artists", "$artists")
 
                 } catch (e: Exception) {
@@ -248,13 +250,13 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
     suspend fun generateArtists() {
         try {
             yearToSongArtistsMap = model.getPlaylistItems(MainActivity.token, playlistId)
-            Log.d("Test", "Top Artists in Pop Category: $yearToSongArtistsMap")
+            Log.d("Test", "Top Artists in $randomGenre Category from $randomYear: $yearToSongArtistsMap")
         } catch (e: Exception) {
             Log.e("Test", "Error: ${e.message}", e)
         }
     }
 
     companion object {
-        var songArtistPair : Pair<String, String>? = null
+        var songArtistTriple : Triple<String, String, String>? = null
     }
 }
