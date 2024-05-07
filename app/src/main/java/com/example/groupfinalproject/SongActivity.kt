@@ -76,13 +76,13 @@ class SongActivity : AppCompatActivity() {
 
     private fun sendEmail() {
         val songTitle = SpinnerActivity.songArtistTriple!!.first
+        var artistString = SpinnerActivity.songArtistTriple!!.second
         val rating = sharedPreferences.getFloat("songRating", 0.0f)
 
         val emailIntent = Intent(Intent.ACTION_SEND)
         emailIntent.type = "text/plain"
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Check out this song!")
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "Song Title: $songTitle by: ")
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "I rated this song: $rating stars!")
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Song Title: $songTitle \nArtist: $artistString\nI rated this song: $rating stars!")
 
         startActivity(Intent.createChooser(emailIntent, "Send Email"))
     }

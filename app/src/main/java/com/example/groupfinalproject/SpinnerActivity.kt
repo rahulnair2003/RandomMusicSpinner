@@ -103,7 +103,7 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                 try {
                     generateArtists()
                     years = arrayOf("1970", "1980", "1990", "1970", "1980", "1990")
-                    timer = object : CountDownTimer(spin * 30L, 1) {
+                    timer = object : CountDownTimer(spin * 20L, 1) {
                         override fun onTick(l: Long) {
                             var rotation = wheelImg.rotation + 10
                             wheelImg.rotation = rotation
