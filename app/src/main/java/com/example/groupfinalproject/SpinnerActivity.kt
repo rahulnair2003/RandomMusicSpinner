@@ -102,7 +102,7 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                 // Call the suspending function within the coroutine
                 try {
                     generateArtists()
-                    years = arrayOf("1970", "1980", "1990", "1970", "1980", "1990")
+                    years = arrayOf("1970", "1980", "1990", "2000", "2010", "2020")
                     timer = object : CountDownTimer(spin * 20L, 1) {
                         override fun onTick(l: Long) {
                             var rotation = wheelImg.rotation + 10
