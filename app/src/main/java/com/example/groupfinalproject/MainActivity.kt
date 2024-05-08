@@ -82,9 +82,9 @@ class MainActivity : AppCompatActivity() {
                 prevGenre = dataSnapshot.child("genre").value.toString()
                 prevYear = dataSnapshot.child("year").value.toString()
                 prevArtist = dataSnapshot.child("artist").value.toString()
-                Log.w("prevdata", prevGenre)
-                Log.w("prevdata", prevYear)
-                Log.w("prevdata", prevArtist)
+                Log.w("NOW", prevGenre)
+                Log.w("NOW", prevYear)
+                Log.w("NOW", prevArtist)
             } else {
                 Log.w("firebase", "new user")
                 reference.child(username).setValue(true)

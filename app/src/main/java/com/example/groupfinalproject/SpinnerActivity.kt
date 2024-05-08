@@ -104,12 +104,16 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
 
                         override fun onFinish() {
                             spinButton.isEnabled = true
+                            prevGenre = MainActivity.prevGenre
+                            prevYear = MainActivity.prevYear
                             if (count == 1) {
                                 randomGenre = genres[random.nextInt(genres.size)]
                                 revealTv.text = "Genre:  $randomGenre"
                                 Log.w("prevgenre", MainActivity.prevGenre)
-                                if (prevGenre != "")
+                                if (prevGenre != "") {
+                                    Log.w("NOW", "HIT")
                                     prevTv.text = "Last time, $username spun $prevGenre"
+                                }
                                 else
                                     prevTv.text = ""
                                 Log.w("TESTING", playlistId)
@@ -138,6 +142,7 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                                 //go to next view with song reveal here
                                 val spinData = mapOf("genre" to randomGenre, "year" to randomYear, "artist" to randomArtist)
                                 reference.child(username).updateChildren(spinData)
+                                Log.w("NOW", "$spinData")
                                 //prevTv.text = "Last time, you spun $prevArtist"
                                 speechRecognizer.stopListening()
                                 SongActivity.spinnerFinish = true
