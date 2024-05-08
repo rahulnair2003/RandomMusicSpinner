@@ -27,15 +27,8 @@ class MainActivity : AppCompatActivity() {
         FirebaseApp.initializeApp(this)
         // Spotify API Client
         CoroutineScope(Dispatchers.Main).launch {
-            // Call the suspending function within the coroutine
-            try {
-                token = model.generateToken()
-            } catch (e: Exception) {
-                // Handle exceptions here
-                println("Exception occurred: ${e.message}")
-            }
+            token = model.generateToken()
         }
-
         // add advertising
         adView = AdView(this)
         var adSize: AdSize = AdSize(AdSize.FULL_WIDTH, AdSize.AUTO_HEIGHT)
@@ -80,14 +73,6 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         adView.resume()
-    }
-    suspend fun generateGenres() {
-        try {
-            val topGenres = model.getTopGenres(Companion.token)
-            Log.d("Test", "Top Genres: $topGenres")
-        } catch (e: Exception) {
-            Log.e("Test", "Error: ${e.message}", e)
-        }
     }
 
     class ValListener: ValueEventListener {
