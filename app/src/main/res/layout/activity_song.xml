@@ -8,7 +8,7 @@
 
     <TextView
         android:id="@+id/prevSongTV"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textSize="25sp"
@@ -21,17 +21,17 @@
 
     <TextView
         android:id="@+id/songTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="PUT SONG TITLE HERE!!!!!!"
+        android:text="PUT SONG TITLE!!!!!!"
         android:textSize="40sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.106" />
+        app:layout_constraintVertical_bias="0.199" />
 
     <TextView
         android:id="@+id/ratingTextView"
@@ -46,6 +46,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.767" />
+
+    <TextView
+        android:id="@+id/lasttime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Last Time you rated"
+        android:textSize="22sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.072" />
 
     <RatingBar
         android:id="@+id/ratingbar"
@@ -104,10 +118,10 @@
 
     <TextView
         android:id="@+id/artistName"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="112dp"
-        android:layout_marginBottom="212dp"
+        android:layout_marginBottom="216dp"
+        android:gravity="center"
         android:text="Artist Name"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 class SongActivity : AppCompatActivity() {
     lateinit var restartButton: Button
     lateinit var songText : TextView
+    lateinit var lastTime : TextView
     lateinit var artistText : TextView
     lateinit var albumImage : ImageView
     lateinit var sharedPreferences: SharedPreferences
@@ -29,7 +30,7 @@ class SongActivity : AppCompatActivity() {
         val prevSong = sharedPreferences.getString("songText", null)
         val rating = sharedPreferences.getFloat("songRating", 0.0f)
 
-        val prevSongToastText = if (prevSong == null) {
+        val prevSongText = if (prevSong == null) {
             "Hope you enjoy your first song!"
         } else {
             if (rating == 0.0f)
@@ -38,19 +39,24 @@ class SongActivity : AppCompatActivity() {
                 "The last song you spun was $prevSong and you rated it $rating stars."
         }
 
-        Toast.makeText(this@SongActivity, prevSongToastText, Toast.LENGTH_LONG).show()
 
         shareButton = findViewById(R.id.shareButton)
         shareButton.setOnClickListener {
             sendEmail()
         }
-
+        lastTime = findViewById<TextView>(R.id.lasttime)
         songText = findViewById<TextView>(R.id.songTextView)
         albumImage = findViewById<ImageView>(R.id.albumImage)
         artistText = findViewById<TextView>(R.id.artistName)
+        lastTime.text = prevSongText
         artistText.text = SpinnerActivity.songArtistTriple!!.second
         songText.text = SpinnerActivity.songArtistTriple!!.first
         Glide.with(this).load(SpinnerActivity.songArtistTriple!!.third).into(albumImage)
+
+        editor.putString("songText", SpinnerActivity.songArtistTriple!!.first)
+        editor.commit()
+        editor.putFloat("songRating", 0.0f)
+        editor.commit()
 
         val ratingBar = findViewById<RatingBar>(R.id.ratingbar)
         val listener = RatingListener()

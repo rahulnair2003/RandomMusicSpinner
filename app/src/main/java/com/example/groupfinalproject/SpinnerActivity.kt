@@ -42,10 +42,10 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
     val model = MainActivity.model
     var firebase = MainActivity.firebase
     var reference = MainActivity.reference
-    var username = MainActivity.username
-    var prevGenre = MainActivity.prevGenre
-    var prevYear = MainActivity.prevYear
-    var prevArtist = MainActivity.prevArtist
+    lateinit var username :String
+    lateinit var prevGenre :String
+    lateinit var prevYear :String
+    lateinit var prevArtist :String
     private lateinit var speechRecognizer: SpeechRecognizer
     private lateinit var recognizerIntent: Intent
     private val permission = 100
@@ -55,13 +55,16 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
 
         var count: Int = 0
         var genres = arrayOf("rap", "pop", "country", "r&b", "indie", "rock")
-
+        username = MainActivity.username
+        prevGenre = MainActivity.prevGenre
+        prevYear = MainActivity.prevYear
+        prevArtist = MainActivity.prevArtist
         val playlistIds = mapOf(
             "rap" to mapOf("1970" to "37i9dQZF1EIee1TiRnBd3C", "1980" to "37i9dQZF1DX2XmsXL2WBQd", "1990" to "37i9dQZF1DX186v583rmzp", "2000" to "37i9dQZF1DX1lHW2vbQwNN", "2010" to "37i9dQZF1DX97h7ftpNSYT", "2020" to "37i9dQZF1EIezQcATIWbSB"),
             "pop" to mapOf("1970" to "37i9dQZF1EIg0r197lDGql", "1980" to "49PAThhKRCCTXeydvq9uAp", "1990" to "37i9dQZF1DWVcJK7WY4M52", "2000" to "5asIusKloOLOILpjhwjgPH", "2010" to "3FeewjLi5LMzIpV4h35QEz", "2020" to "7bfyBCaVhnd8OywuUVKlhN"),
             "country" to mapOf("1970" to "37i9dQZF1DWYP5PUsVbso9", "1980" to "37i9dQZF1DX6RCydf9ytsj", "1990" to "37i9dQZF1DWVpjAJGB70vU", "2000" to "37i9dQZF1DXdxUH6sNtcDe", "2010" to "0wqUVPa19eClnNClEMQQoY", "2020" to "7vGNRrlvEtUX6hRdQvLq7U"),
             "r&b" to mapOf("1970" to "37i9dQZF1EIdpeTOIJBUe0", "1980" to "7oSFWAqfNN4UON82z8yst0", "1990" to "37i9dQZF1DX6VDO8a6cQME", "2000" to "37i9dQZF1DWYmmr74INQlb", "2010" to "37i9dQZF1DWXbttAJcbphz", "2020" to "37i9dQZF1EIhKysdf5HuRS"),
-            "indie" to mapOf("1970" to "0IbhSEAnmAUYMOtqImw4JK", "1980" to "37i9dQZF1EIevGiMQyNtSW", "1990" to "37i9dQZF1EIdAFUuQXTjDp", "2000" to "4irf7OeR9mM7KVxNTYoiXx", "2010" to "2HgmyUctw7UAi6fLlIMZJH", "2020" to "37i9dQZF1EIgo0ld2W1RyS"),
+            "indie" to mapOf("1970" to "37i9dQZF1EIfEuk5mHRSID", "1980" to "37i9dQZF1EIevGiMQyNtSW", "1990" to "37i9dQZF1EIdAFUuQXTjDp", "2000" to "4irf7OeR9mM7KVxNTYoiXx", "2010" to "2HgmyUctw7UAi6fLlIMZJH", "2020" to "37i9dQZF1EIgo0ld2W1RyS"),
             "rock" to mapOf("1970" to "3za8xUPaO5ng9AC7rpbMNB", "1980" to "37i9dQZF1EIelF7Dvo3Edn", "1990" to "2HfFccisPxQfprhgIHM7XH", "2000" to "37i9dQZF1DX3oM43CtKnRV", "2010" to "37i9dQZF1DX99DRG9N39X3", "2020" to "37i9dQZF1EIfFB4LmpxPTW")
         )
 
@@ -114,7 +117,7 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                             if (count == 1) {
                                 randomGenre = genres[random.nextInt(genres.size)]
                                 revealTv.text = "Genre:  $randomGenre"
-                                Log.w("prevgenre", prevGenre)
+                                Log.w("prevgenre", MainActivity.prevGenre)
                                 if (prevGenre != "")
                                     prevTv.text = "Last time, $username spun $prevGenre"
                                 else
@@ -124,10 +127,10 @@ class SpinnerActivity : AppCompatActivity(), RecognitionListener {
                             }
                             else if (count == 2) {
                                 randomYear = years[random.nextInt(years.size)]
-                                revealTv.text = "Year: $randomYear"
+                                revealTv.text = "Decade: ${randomYear}s"
                                 Log.w("prevyear", prevYear)
                                 if (prevYear != "")
-                                    prevTv.text = "Last time, $username spun $prevYear"
+                                    prevTv.text = "Last time, $username spun ${prevYear}s"
                                 else
                                     prevTv.text = ""
                                 playlistId = playlistIds[randomGenre]!![randomYear]!!
