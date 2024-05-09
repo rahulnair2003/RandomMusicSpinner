@@ -1,5 +1,7 @@
 package com.example.groupfinalproject
 
+/*CMSC436 Group: Riya Boyapati, Rahul Nair, Srilasya Poruri*/
+
 import android.util.Base64
 import android.util.Log
 import kotlinx.coroutines.Dispatchers

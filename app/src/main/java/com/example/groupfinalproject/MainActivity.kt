@@ -1,5 +1,7 @@
 package com.example.groupfinalproject
 
+/*CMSC436 Group: Riya Boyapati, Rahul Nair, Srilasya Poruri*/
+
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

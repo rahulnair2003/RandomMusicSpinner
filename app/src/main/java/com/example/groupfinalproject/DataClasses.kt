@@ -1,6 +1,6 @@
 package com.example.groupfinalproject
 
-
+/*CMSC436 Group: Riya Boyapati, Rahul Nair, Srilasya Poruri*/
 data class AddedBy(
     val external_urls: ExternalUrls,
     val followers: Followers,

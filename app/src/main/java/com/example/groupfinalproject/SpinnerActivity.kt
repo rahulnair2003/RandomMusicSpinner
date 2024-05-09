@@ -1,5 +1,7 @@
 package com.example.groupfinalproject
 
+/*CMSC436 Group: Riya Boyapati, Rahul Nair, Srilasya Poruri*/
+
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
