@@ -1,6 +1,5 @@
 package com.example.groupfinalproject
 
-
 import android.util.Base64
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
@@ -34,40 +33,18 @@ class SpotifyApiClient {
             .build()
             .create(GenerateAuthToken::class.java)
         return withContext(Dispatchers.IO) {
-            try {
-                val response = createAuthTokenService.getToken(authHeader, grantType).execute()
-                if (response.isSuccessful) {
-                    response.body()?.access_token ?: throw RuntimeException("Token not found")
-                } else {
-                    throw RuntimeException("Failed to generate token: ${response.code()}")
-                }
-            } catch (e: Exception) {
-                throw RuntimeException("Failed to generate token", e)
+            val response = createAuthTokenService.getToken(authHeader, grantType).execute()
+            if (response.isSuccessful) {
+                response.body()?.access_token ?: throw RuntimeException("Token not found")
+            }
+            else {
+                throw RuntimeException("Failed to generate token: ${response.code()}")
             }
         }
     }
 
-    suspend fun getTopGenres(token: String): List<String> {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.spotify.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        val getGenresApi = retrofit.create(GetGenres::class.java)
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = getGenresApi.getCategories("Bearer $token").execute()
-                if (response.isSuccessful) {
-                    response.body()?.categories?.items?.mapNotNull { it.name } ?: emptyList()
-                } else {
-                    throw RuntimeException("Failed to get categories: ${response.code()}")
-                }
-            } catch (e: Exception) {
-                throw RuntimeException("Failed to get categories", e)
-            }
-        }
-    }
 
-    suspend fun getPlaylistItems(accessToken: String, playlistId: String): Map<String, List<Triple<String, String, String>>> {
+    private suspend fun getPlaylistItems(accessToken: String, playlistId: String): Map<String, List<Triple<String, String, String>>> {
         val decadeToSongArtistsMap = mutableMapOf<String, MutableList<Triple<String, String, String>>>()
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.spotify.com/")
@@ -76,27 +53,24 @@ class SpotifyApiClient {
         val getPlaylistApi = retrofit.create(GetPlaylistFromCategory::class.java)
         Log.d("Test", "$playlistId")
         return withContext(Dispatchers.IO) {
-            try {
-                val response = getPlaylistApi.getTracks("Bearer $accessToken", playlistId).execute()
-                if (response.isSuccessful) {
-                    response.body()?.items?.forEach { item ->
-                        val releaseYear = item.track.album.release_date?.substring(0, 4)?.toIntOrNull()
-                        releaseYear?.let { year ->
-                            val decade = getDecade(year)
-                            item.track.artists.forEach { artist ->
-                                val imageURL = item.track.album.images.firstOrNull()?.url ?: "https://static.vecteezy.com/system/resources/thumbnails/001/840/618/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg"
-                                val songArtistImageTriple = Triple(item.track.name, artist.name, imageURL)
-                                val songArtistsList = decadeToSongArtistsMap.getOrPut(decade) { mutableListOf() }
-                                songArtistsList.add(songArtistImageTriple)
-                            }
+            val response = getPlaylistApi.getTracks("Bearer $accessToken", playlistId).execute()
+            if (response.isSuccessful) {
+                response.body()?.items?.forEach { item ->
+                    val releaseYear = item.track.album.release_date?.substring(0, 4)?.toIntOrNull()
+                    releaseYear?.let { year ->
+                        val decade = getDecade(year)
+                        item.track.artists.forEach { artist ->
+                            val imageURL = item.track.album.images.firstOrNull()?.url ?: "https://static.vecteezy.com/system/resources/thumbnails/001/840/618/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg"
+                            val songArtistImageTriple = Triple(item.track.name, artist.name, imageURL)
+                            val songArtistsList = decadeToSongArtistsMap.getOrPut(decade) { mutableListOf() }
+                            songArtistsList.add(songArtistImageTriple)
                         }
                     }
-                    decadeToSongArtistsMap
-                } else {
-                    throw RuntimeException("Failed to get playlist items: ${response.code()}")
                 }
-            } catch (e: Exception) {
-                throw RuntimeException("Failed to get playlist items", e)
+                decadeToSongArtistsMap
+            }
+            else {
+                throw RuntimeException("Failed to get playlist items: ${response.code()}")
             }
         }
     }
@@ -115,15 +89,16 @@ class SpotifyApiClient {
     }
 
     suspend fun generateArtists(playlistId: String, genre: String, decade: String) : Map<String, List<Triple<String, String, String>>> {
-            val yearToSongArtistsMap = getPlaylistItems(MainActivity.token, playlistId)
-            Log.d("Test", "Top Artists in $genre Category from $decade: $yearToSongArtistsMap")
-            return yearToSongArtistsMap
+        val yearToSongArtistsMap = getPlaylistItems(MainActivity.token, playlistId)
+        Log.d("Test", "Top Artists in $genre Category from $decade: $yearToSongArtistsMap")
+        return yearToSongArtistsMap
     }
 
     fun getSongs(map: Map<String, List<Triple<String, String, String>>>, year: String): Set<String> {
         return if (map.containsKey(year)) {
             map[year]!!.map { it.first }.toSet()
-        } else {
+        }
+        else {
             emptySet()
         }
     }
@@ -131,7 +106,8 @@ class SpotifyApiClient {
     fun getArtists(map: Map<String, List<Triple<String, String, String>>>, year: String): Set<String> {
         return if (map.containsKey(year)) {
             map[year]!!.map { it.second }.toSet()
-        } else {
+        }
+        else {
             emptySet()
         }
     }
