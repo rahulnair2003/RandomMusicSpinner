@@ -9,7 +9,7 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class SpotifyApiClient {
+class Model {
 
     private val BASE_URL = "https://accounts.spotify.com/"
     val playlistIds = mapOf(
@@ -37,7 +37,12 @@ class SpotifyApiClient {
         return withContext(Dispatchers.IO) {
             val response = createAuthTokenService.getToken(authHeader, grantType).execute()
             if (response.isSuccessful) {
-                response.body()?.access_token ?: throw RuntimeException("Token not found")
+                if (response.body()?.access_token != null){
+                    response.body()?.access_token!!
+                }
+                else{
+                    throw RuntimeException("Token not found")
+                }
             }
             else {
                 throw RuntimeException("Failed to generate token: ${response.code()}")

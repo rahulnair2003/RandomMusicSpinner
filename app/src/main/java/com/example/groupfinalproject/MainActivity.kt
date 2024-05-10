@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         lateinit var token : String
-        val model = SpotifyApiClient()
+        val model = Model()
         lateinit var firebase: FirebaseDatabase
         lateinit var reference: DatabaseReference
         lateinit var username: String
